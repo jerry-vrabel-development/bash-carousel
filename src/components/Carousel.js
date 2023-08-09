@@ -3,7 +3,6 @@ import { gsap } from 'gsap';
 import '../styles/Carousel.css';
 
 const Carousel = ({ images }) => {
-  // Function to shuffle the array
   const shuffleArray = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -13,23 +12,28 @@ const Carousel = ({ images }) => {
     return shuffled;
   };
 
-  // Shuffle the images on mount
-  const [shuffledImages, setShuffledImages] = useState(shuffleArray(images));
+  const shuffledImages = shuffleArray(images);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [initialLoad, setInitialLoad] = useState(true);
   const starRef = useRef(null);
 
-  const animateStarWipe = () => {
-    gsap.fromTo(starRef.current, { scale: 0, opacity: 1 }, { scale: 100, opacity: 0, duration: 1, ease: "power2.out" });
+  const animateStarWipe = (delay = 0) => {
+    gsap.fromTo(starRef.current, { scale: 0, opacity: 1 }, { scale: 100, opacity: 0, duration: 1, ease: "power2.out", delay: delay });
   };
 
   useEffect(() => {
+    if (initialLoad) {
+      animateStarWipe(1);
+      setInitialLoad(false);
+    }
+
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % shuffledImages.length);
       animateStarWipe();
     }, 3000);
 
     return () => clearInterval(timer);
-  }, [shuffledImages]);
+  }, [shuffledImages, initialLoad]);
 
   return (
     <div className="carousel">
